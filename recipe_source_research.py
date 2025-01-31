@@ -1,4 +1,11 @@
+import db
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
 import pandas as pd
+from matplotlib import rcParams
+
+rcParams['font.family'] = 'Lucida Sans Unicode'
 
 # Input data: Research IDs, number of respondents, and results
 research_data = [
@@ -84,10 +91,10 @@ research_data = [
 # Total respondents across all research studies
 total_respondents = sum([data["respondents"] for data in research_data])
 
-# Initialize a consolidated results dictionary
+# Initializing a consolidated results dictionary
 consolidated_results = {}
 
-# Process each research study to calculate weighted averages
+# Processing each research study to calculate weighted averages
 for research in research_data:
     weight = research["respondents"] / total_respondents
     for category, value in research["results"].items():
@@ -95,14 +102,98 @@ for research in research_data:
             consolidated_results[category] = 0
         consolidated_results[category] += value * weight
 
-# Convert consolidated results to a sorted DataFrame for better readability
-consolidated_df = pd.DataFrame(
-    consolidated_results.items(), columns=["Category", "Weighted Average"]
+# Defining mapping for consolidation
+category_mapping = {
+    "Online Recipe Sources": [
+        "Recipe sites/apps", "Cooking websites", "Recipe websites/apps", "Written recipes on blogs"
+    ],
+    "Social Media": [
+        "Friends' posts on social media", "Social media", "Social media videos"
+    ],
+    "Family and Friends": [
+        "Family recipes", "Friends/family", "Family recommendations", "Family/friends recipes", "Family opinions",
+        "Friends/acquaintances"
+    ],
+    "TV Shows": [
+        "TV shows", "TV programs", "TV cooking shows"
+    ],
+    "Printed/Physical Materials": [
+        "Magazines", "Magazines/newspapers", "Recipe books", "Cookbooks", "Printed cookbooks",
+        "Supermarket recipe cards", "Newspapers", "Leaflets in newspapers"
+    ],
+    "Online Tutorials": [
+        "Online tutorials", "Cooking shows/tutorials", "YouTube videos"
+    ],
+    "Restaurant/Commercial Sources": [
+        "Restaurant meals", "Menus at foodservice stores", "Product packaging", "Product ads (supermarkets)",
+        "Supermarket displays", "Commercials"
+    ],
+    "Other Sources": [
+        "Children's requests", "Cooking classes", "Free PR magazines", "Radio", "Other"
+    ]
+}
+
+# Consolidating results into meaningful clusters
+final_consolidated_results = {}
+for cluster, categories in category_mapping.items():
+    final_consolidated_results[cluster] = sum(
+        [consolidated_results.get(category, 0) for category in categories]
+    )
+
+# Converting final consolidated results to DataFrame
+final_consolidated_df = pd.DataFrame(
+    final_consolidated_results.items(), columns=["Category", "Weighted Average"]
 ).sort_values(by="Weighted Average", ascending=False)
 
-# Display the consolidated results table
-print("Total Respondents:", total_respondents)
-print(consolidated_df)
+# Displaying the final consolidated DataFrame
+print(final_consolidated_df)
 
-# Export the results to a CSV file
-consolidated_df.to_csv("consolidated_recipe_sources.csv", index=False)
+# Exporting the consolidated table to a CSV file
+final_consolidated_df.to_csv("consolidated_recipe_sources.csv", index=False)
+
+color_palette = [
+    "#092D34",
+    "#104A56",
+    "#16697A",
+    "#19778A",
+    "#2095AC",
+    "#36B3CF",
+    "#41C2DC",
+    "#64CDE3",
+]
+
+
+# Plot bar chart
+def plot_bar_chart(data, colors):
+    recipe_categories = [row[0] for row in data]
+    percentages = [float(row[1].strip('%')) for row in data]  # Convert "xx.xx %" to float
+
+    # Bar chart
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(recipe_categories, percentages, color=colors[:len(recipe_categories)])
+
+    # Add value labels
+    for bar in bars:
+        plt.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 1,
+            f"{bar.get_height():.2f} %",
+            ha="center",
+            va="bottom",
+            fontsize=10
+        )
+
+    # Customization
+    plt.title("Recipe Sources", fontsize=14, weight="bold")
+    plt.xlabel("", fontsize=12)
+    plt.ylabel("", fontsize=12)
+    plt.xticks(rotation=45, ha="right", fontsize=10)
+    plt.ylim(0, max(percentages) + 5)
+    plt.tight_layout()
+    plt.show()
+
+
+table_name = "recipe_sources_percentage"
+data = db.fetch_data_from_db(db.db_configuration, table_name)
+
+plot_bar_chart(data, color_palette)

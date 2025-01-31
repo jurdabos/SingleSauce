@@ -1,0 +1,23 @@
+:root {
+  /* CSS HEX */
+  --caribbean-current-hex: #16697aff;
+  --mindaro-hex: #dbf4a7ff;
+  --chestnut-hex: #a24936ff;
+  --maya-blue-hex: #7ebce6ff;
+  --pale-dogwood-hex: #e6beaeff;
+
+  /* CSS HSL */
+  --caribbean-current-hsl: hsla(190, 69%, 28%, 1);
+  --mindaro-hsl: hsla(79, 78%, 81%, 1);
+  --chestnut-hsl: hsla(11, 50%, 42%, 1);
+  --maya-blue-hsl: hsla(204, 68%, 70%, 1);
+  --pale-dogwood-hsl: hsla(17, 53%, 79%, 1);
+}
+
+/*.my-element-hex {*/
+/*  background-color: var(--caribbean-current-hex);*/
+/*}*/
+
+/*.my-element-hsl {*/
+/*  background-color: var(--caribbean-current-hsl);*/
+/*}*/
