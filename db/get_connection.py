@@ -11,8 +11,9 @@ def get_db_connection(db_type, db_config):
         return mysql.connector.connect(**db_config)
     elif db_type == "sqlite":
         db_path = os.environ.get("LOCAL_DB_PATH", "local_recipes.sqlite")
-        # If LOCAL_DB_PATH variable is set, `db_path` is assigned its value.
-        # If not, `db_path` defaults to "local_recipes.sqlite".
-        return sqlite3.connect(db_path)
+        conn = sqlite3.connect(db_path)
+        # Enabling foreign key constraints:
+        conn.execute("PRAGMA foreign_keys = ON")
+        return conn
     else:
         raise ValueError(f"Unsupported DB type: {db_type}")
