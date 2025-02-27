@@ -278,7 +278,7 @@ def add_recipe():
 @app.route("/run_etl")
 def run_etl():
     """
-    Example route that triggers your ETL flow on a given file.
+    Example route that triggers the ETL flow on a given file.
     """
     # For the sake of demo, let's use a static path or you could pass it as a query param
     source_path = "data/historic_recipes.csv"
